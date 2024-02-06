@@ -9,12 +9,14 @@ import Brand from "./Brand";
 import Category from "./Category";
 import ProductCard from "./ProductCard";
 import ProductPagination from "./ProductPagination";
+import { useProducts } from "@/components/network/product.hook";
 const Home = () => {
   const brands: string[] = ["apple", "samsung", "nokia", "redmi"];
   const categories: string[] = ["mobile", "bike", "tv", "redmi"];
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [selectedCategory, setSelectedCategories] = useState<string[]>([]);
   const [priceRange, setPriceRange] = useState<number[]>([0]);
+
   const handleBrandChange = (brand: string) => {
     setSelectedBrands((prevSelected) =>
       prevSelected.includes(brand)
@@ -22,6 +24,7 @@ const Home = () => {
         : [...prevSelected, brand]
     );
   };
+
   const handleCategoryChange = (category: string) => {
     setSelectedCategories((prevSelected) =>
       prevSelected.includes(category)
@@ -59,6 +62,9 @@ const Home = () => {
     console.log(`Page changed to: ${page}`);
   };
 
+  const { data, isError, isLoading } = useProducts();
+  console.log(data);
+
   const mockMeta = {
     page: currentPage,
     limit: 10,
@@ -66,12 +72,16 @@ const Home = () => {
     totalPage: 501,
   };
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleSearch = (e:any) => {
+  const handleSearch = (e: any) => {
     e.preventDefault();
 
     // Add your search logic here using the 'searchQuery' state
     console.log("Searching for:", searchQuery);
   };
+
+  if (isLoading) {
+    return <p>loading ...</p>;
+  }
 
   return (
     <Container>

@@ -17,6 +17,7 @@
     "@radix-ui/react-slider": "^1.1.2",
     "@radix-ui/react-slot": "^1.0.2",
     "@reduxjs/toolkit": "^2.0.1",
+    "@tanstack/react-query": "^5.18.1",
     "add": "^2.0.6",
     "axios": "^1.6.6",
     "button": "^1.1.1",
