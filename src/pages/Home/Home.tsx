@@ -10,7 +10,10 @@ import Category from "./Category";
 import ProductCard from "./ProductCard";
 import ProductPagination from "./ProductPagination";
 import { useProducts } from "@/components/network/product.hook";
+import { useSearchParams } from "react-router-dom";
 const Home = () => {
+  const [searchParam, setSearchParam] = useSearchParams();
+  console.log(searchParam.toString());
   const brands: string[] = ["apple", "samsung", "nokia", "redmi"];
   const categories: string[] = ["mobile", "bike", "tv", "redmi"];
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
@@ -35,23 +38,7 @@ const Home = () => {
     );
   };
   const [searchQuery, setSearchQuery] = useState("");
-  const [products, setproducts] = useState([
-    {
-      _id: "65b228251eb990ba7bfcda62",
-      price: 658.57,
-      description:
-        "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Proin risus. Praesent lectus. Vestibulum quam sapien, varius ut, blandit non, interdum in, ante. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Duis faucibus accumsan odio. ...", // (The complete product description)
-      brand: "PetSmart",
-      category: "clothing",
-      quantity: 615,
-      rating: 1.8,
-      createdAt: "2024-01-25T10:11:12.037Z",
-      updatedAt: "2024-01-25T10:11:12.037Z",
-      imageUrl: "http://dummyimage.com/112x100.png/dddddd/000000",
-      isAvailable: true,
-      productName: "Pandora Charm Bracelet",
-    },
-  ]);
+
   const [currentPage, setCurrentPage] = useState<number>(1);
 
   const handlePageChange = (page: number) => {
@@ -62,8 +49,7 @@ const Home = () => {
     console.log(`Page changed to: ${page}`);
   };
 
-  const { data, isError, isLoading } = useProducts();
-  console.log(data);
+  const { data: products, isError, isLoading } = useProducts();
 
   const mockMeta = {
     page: currentPage,
@@ -79,6 +65,28 @@ const Home = () => {
     console.log("Searching for:", searchQuery);
   };
 
+  const handleApply = () => {
+    let queryParam = "";
+    if (selectedBrands.length) {
+      const brandPrams = selectedBrands.join("&brand=");
+      queryParam += `${queryParam ? "&" : ""}brand=${brandPrams}`;
+    }
+    if (selectedCategory.length) {
+      const categoryParam = selectedCategory.join("&category=");
+      queryParam += `${queryParam ? "&" : ""}category=${categoryParam}`;
+    }
+    if (priceRange.length === 1 && priceRange[0] > 0) {
+      queryParam += `${queryParam ? "&" : ""}price=${priceRange[0]}`;
+    }
+    setSearchParam(queryParam);
+  };
+
+  const handleClear = () => {
+    setSearchParam("");
+    setSelectedBrands([]);
+    setSelectedCategories([]);
+  };
+
   if (isLoading) {
     return <p>loading ...</p>;
   }
@@ -87,7 +95,7 @@ const Home = () => {
     <Container>
       <div className="mt-28 flex relative">
         <div className="basis-1/4 bg-slate-100 h-[700px] w-full shadow rounded px-2">
-          <h3 className="text-2xl font-bold my-3  ">Filters</h3>
+          <h3 className="text-2xl font-bold my-3">Filters</h3>
           <hr className="border border-black" />
           <div className="">
             <p className="font-bold my-3">Brand</p>
@@ -97,6 +105,7 @@ const Home = () => {
                 key={brand}
                 brand={brand}
                 onBrandChange={handleBrandChange}
+                isChecked={selectedBrands.includes(brand)}
               />
             ))}
             <p className="font-bold my-3">Category</p>
@@ -106,6 +115,7 @@ const Home = () => {
                 key={category}
                 category={category}
                 onCategoryChange={handleCategoryChange}
+                isChecked={selectedCategory.includes(category)}
               />
             ))}
             <p className="font-bold my-3">Price</p>
@@ -131,8 +141,10 @@ const Home = () => {
             </div>
           </div>
           <div className="flex justify-between mt-20">
-            <Button variant="outline">Clear Filter</Button>
-            <Button>Apply Filter</Button>
+            <Button onClick={handleClear} variant="outline">
+              Clear Filter
+            </Button>
+            <Button onClick={handleApply}>Apply Filter</Button>
           </div>
         </div>
         <div className="basis-full ">
@@ -159,7 +171,7 @@ const Home = () => {
             </form>
           </div>
           <div className="grid grid-cols-4 gap-2 ml-2 mt-12">
-            {products.map((product) => (
+            {products?.data?.data.map((product) => (
               <ProductCard product={product} key={product._id}></ProductCard>
             ))}
           </div>
